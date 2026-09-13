@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Keperawatan Ruang Interne (Penyakit Dalam) - RSUD Kol. Abundjani Bangko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .input-ctrl {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border-radius: 0.75rem;
+            border: 1px solid #cbd5e1;
+            background-color: #ffffff;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #0f172a !important;
+            transition: all 0.2s ease-in-out;
+        }
+        .input-ctrl:focus {
+            outline: none;
+            border-color: #0d9488;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+        }
+        select.input-ctrl option {
+            color: #0f172a;
+            font-weight: 600;
+        }
+        .input-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #334155;
+            margin-bottom: 0.375rem;
+        }
+        .form-card {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 1.25rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 900 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #0f172a;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 1rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            width: 100%;
+            max-width: 46rem;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .toast {
+            position: fixed;
+            bottom: 5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 60;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .room-badge {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.5rem;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col pb-24">
+
+    <header class="bg-teal-900 text-white sticky top-0 z-30 shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchNav('dashboard')">
+                <div class="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center font-black text-xl text-teal-100 shadow-inner">
+                    🏥
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-base tracking-tight leading-tight text-white uppercase">PORTAL RUANG INTERNA</h1>
+                    <p class="text-[11px] font-semibold text-teal-200">Spesialis Penyakit Dalam • RSUD Kol. Abundjani Bangko</p>
+                </div>
+            </div>
+            <button onclick="switchNav('dashboard')" class="bg-teal-800 hover:bg-teal-700 text-teal-100 text-xs font-bold px-3 py-2 rounded-lg transition border border-teal-700/50 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span class="hidden sm:inline">Menu Utama</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto px-4 pt-6 flex-1 w-full">
+
+        <section id="sec-dashboard" class="space-y-6">
+            <div class="bg-gradient-to-r from-teal-800 to-emerald-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                <span class="bg-teal-500/30 text-teal-200 border border-teal-400/30 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full tracking-wider">Portal Dokumentasi Medis Integrated</span>
+                <h2 class="text-2xl font-black tracking-tight mt-2 text-white">Laporan Harian & Sensus Bed Interna</h2>
+                <p class="text-xs text-teal-100/80 mt-1 max-w-xl font-medium leading-relaxed">
+                    RSUD Kol. Abundjani Bangko • Pengelolaan Sensus Bed Kelas 1, Kelas 2, Kelas 3, & HCU Interna.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Modul 1: Laporan Harian Interna -->
+                <div onclick="switchNav('laporan_harian')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group hover:border-teal-500 relative overflow-hidden">
+                    <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-2xl mb-4 group-hover:scale-110 transition transform">
+                        🛏️
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 group-hover:text-teal-700 transition">1. Laporan Harian Rawat Inap Interna</h3>
+                    <p class="text-xs font-semibold text-slate-500 mt-1">
+                        Sensus Bed Lengkap per Kamar (Kelas 1, Kelas 2, Kelas 3, HCU Interna) sesuai layout spesifik ruangan RSUD Kol. Abundjani Bangko.
+                    </p>
+                    <div class="mt-4 flex items-center text-xs font-bold text-teal-600">
+                        Buka Laporan Sensus Bed &rarr;
+                    </div>
+                </div>
+
+                <!-- Modul 2: Kalkulator Medis -->
+                <div onclick="switchNav('kalkulator')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group hover:border-amber-500 relative overflow-hidden">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-2xl mb-4 group-hover:scale-110 transition transform">
+                        💉
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 group-hover:text-amber-700 transition">2. Kalkulator Dosis & Medis</h3>
+                    <p class="text-xs font-semibold text-slate-500 mt-1">
+                        Syringe Pump (Norepinephrine, Insulin, Nicardipine), Koreksi Dextrose 40% Hipoglikemia, eGFR, & TPM Infus.
+                    </p>
+                    <div class="mt-4 flex items-center text-xs font-bold text-amber-600">
+                        Buka Kalkulator Obat &rarr;
+                    </div>
+                </div>
+
+                <!-- Modul 3: SISRUTE -->
+                <div onclick="switchNav('sisrute')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group hover:border-indigo-500 relative overflow-hidden">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-2xl mb-4 group-hover:scale-110 transition transform">
+                        🚑
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 group-hover:text-indigo-700 transition">3. Format SISRUTE Rujukan</h3>
+                    <p class="text-xs font-semibold text-slate-500 mt-1">
+                        Generator draft rujukan terintegrasi RSUD Kol. Abundjani Bangko dengan daftar DPJP Penyakit Dalam.
+                    </p>
+                    <div class="mt-4 flex items-center text-xs font-bold text-indigo-600">
+                        Buka Format SISRUTE &rarr;
+                    </div>
+                </div>
+
+                <!-- Modul 4: Pasien Baru -->
+                <div onclick="switchNav('pasienbaru')" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group hover:border-emerald-500 relative overflow-hidden">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-2xl mb-4 group-hover:scale-110 transition transform">
+                        📥
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition">4. Laporan Pasien Baru</h3>
+                    <p class="text-xs font-semibold text-slate-500 mt-1">
+                        Penerimaan pasien baru (IGD/Poli/Transfer) dengan anamnesis, vital sign, & instruksi DPJP.
+                    </p>
+                    <div class="mt-4 flex items-center text-xs font-bold text-emerald-600">
+                        Buka Pasien Baru &rarr;
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-laporan_harian" class="hidden space-y-4">
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight uppercase">LAPORAN HARIAN RAWAT INAP RUANGAN INTERNA</h2>
+                    <p class="text-xs text-slate-500 font-semibold">RSUD KOL. ABUNDJANI BANGKO</p>
+                </div>
+                <button onclick="switchNav('dashboard')" class="text-xs font-extrabold text-slate-500 hover:text-slate-800 bg-slate-200/70 px-3 py-1.5 rounded-lg">Kembali</button>
+            </div>
+
+            <!-- Seksi 1: Waktu, Shift, & Petugas Jaga -->
+            <div class="form-card border-t-4 border-t-teal-700">
+                <div class="section-header">
+                    <h3 class="section-title">1. Waktu & Identitas Petugas</h3>
+                    <span class="text-xs font-extrabold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full">Shift Ruangan</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="input-label">Hari / Tanggal</label>
+                        <input type="date" id="lh_tanggal" class="input-ctrl">
+                    </div>
+                    <div>
+                        <label class="input-label">Shift Jaga (Dropdown)</label>
+                        <select id="lh_shift" class="input-ctrl">
+                            <option value="Pagi">Pagi</option>
+                            <option value="Sore">Sore</option>
+                            <option value="Malam">Malam</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label">Nama Petugas (Input Mandiri)</label>
+                        <input type="text" id="lh_petugas" class="input-ctrl border-teal-400" placeholder="Ketik nama petugas pelapor...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seksi 2: Status Kapasitas Bed Ruangan Interna -->
+            <div class="form-card border-t-4 border-t-emerald-600">
+                <div class="section-header">
+                    <div>
+                        <h3 class="section-title">2. Status Kapasitas Bed (Detail Ruangan)</h3>
+                        <p class="text-[11px] font-semibold text-slate-500">Semua status menggunakan Dropdown</p>
+                    </div>
+                    <button onclick="setPresetInternaDefault()" class="text-xs font-extrabold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-3 py-1.5 rounded-lg transition">Set Status Bawaan</button>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- KELAS 1 -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-black text-sm text-teal-900 uppercase tracking-wide">• KELAS 1 (Total Kapasitas: 10 Bed)</h4>
+                            <span class="room-badge bg-teal-100 text-teal-800">1A, 1B, 1C, 1D, 1E, 1F</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <!-- 1A -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-teal-800">Kamar 1.A (2 Bed)</label>
+                                <select id="bed_1a" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="2 Terisi">2 Terisi</option>
+                                    <option value="1 Terisi, 1 Kosong">1 Terisi, 1 Kosong</option>
+                                    <option value="2 Kosong">2 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                            <!-- 1B -->
+                            <div class="bg-amber-50/60 p-3 rounded-lg border border-amber-200 shadow-sm">
+                                <label class="input-label text-amber-900">Kamar 1.B (2 Bed)</label>
+                                <select id="bed_1b" class="input-ctrl text-xs border-amber-300" onchange="calculateBedStats()">
+                                    <option value="2 Terisi">2 Terisi</option>
+                                    <option value="1 Terisi, 1 Kosong">1 Terisi, 1 Kosong</option>
+                                    <option value="2 Kosong">2 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                            <!-- 1C -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-teal-800">Kamar 1.C (2 Bed)</label>
+                                <select id="bed_1c" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="2 Terisi">2 Terisi</option>
+                                    <option value="1 Terisi, 1 Kosong">1 Terisi, 1 Kosong</option>
+                                    <option value="2 Kosong">2 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                            <!-- 1D -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-teal-800">Kamar 1.D (1 Bed)</label>
+                                <select id="bed_1d" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="1 Terisi">1 Terisi</option>
+                                    <option value="1 Kosong">1 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                            <!-- 1E -->
+                            <div class="bg-rose-50/60 p-3 rounded-lg border border-rose-200 shadow-sm">
+                                <label class="input-label text-rose-900">Kamar 1.E (2 Bed)</label>
+                                <select id="bed_1e" class="input-ctrl text-xs border-rose-300" onchange="calculateBedStats()">
+                                    <option value="1 Terisi, 1 Rusak">1 Terisi, 1 Rusak</option>
+                                    <option value="1 Kosong, 1 Rusak">1 Kosong, 1 Rusak</option>
+                                    <option value="2 Terisi">2 Terisi</option>
+                                    <option value="2 Kosong">2 Kosong</option>
+                                    <option value="2 Rusak">2 Rusak</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                            <!-- 1F -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-teal-800">Kamar 1.F (1 Bed)</label>
+                                <select id="bed_1f" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="1 Terisi">1 Terisi</option>
+                                    <option value="1 Kosong">1 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KELAS 2 -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-black text-sm text-indigo-900 uppercase tracking-wide">• KELAS 2 (Total Kapasitas: 6 Bed)</h4>
+                            <span class="room-badge bg-indigo-100 text-indigo-800">2A, 2B</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <!-- 2A -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-indigo-900">Kamar 2.A (3 Bed)</label>
+                                <select id="bed_2a" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="3 Terisi">3 Terisi</option>
+                                    <option value="2 Terisi, 1 Kosong">2 Terisi, 1 Kosong</option>
+                                    <option value="1 Terisi, 2 Kosong">1 Terisi, 2 Kosong</option>
+                                    <option value="3 Kosong">3 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                            <!-- 2B -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-indigo-900">Kamar 2.B (3 Bed)</label>
+                                <select id="bed_2b" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="3 Terisi">3 Terisi</option>
+                                    <option value="2 Terisi, 1 Kosong">2 Terisi, 1 Kosong</option>
+                                    <option value="1 Terisi, 2 Kosong">1 Terisi, 2 Kosong</option>
+                                    <option value="3 Kosong">3 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KELAS 3 -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-black text-sm text-emerald-900 uppercase tracking-wide">• KELAS 3 (Total Kapasitas: 12 Bed)</h4>
+                            <span class="room-badge bg-emerald-100 text-emerald-800">3A, 3B, 3C</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <!-- 3A -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-emerald-900">Kamar 3.A (4 Bed)</label>
+                                <select id="bed_3a" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="4 Terisi">4 Terisi</option>
+                                    <option value="3 Terisi, 1 Kosong">3 Terisi, 1 Kosong</option>
+                                    <option value="2 Terisi, 2 Kosong">2 Terisi, 2 Kosong</option>
+                                    <option value="1 Terisi, 3 Kosong">1 Terisi, 3 Kosong</option>
+                                    <option value="4 Kosong">4 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                            <!-- 3B -->
+                            <div class="bg-amber-50/60 p-3 rounded-lg border border-amber-200 shadow-sm">
+                                <label class="input-label text-amber-900">Kamar 3.B (4 Bed)</label>
+                                <select id="bed_3b" class="input-ctrl text-xs border-amber-300" onchange="calculateBedStats()">
+                                    <option value="4 Terisi">4 Terisi</option>
+                                    <option value="3 Terisi, 1 Kosong">3 Terisi, 1 Kosong</option>
+                                    <option value="2 Terisi, 2 Kosong">2 Terisi, 2 Kosong</option>
+                                    <option value="1 Terisi, 3 Kosong">1 Terisi, 3 Kosong</option>
+                                    <option value="4 Kosong">4 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                            <!-- 3C -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-emerald-900">Kamar 3.C (4 Bed)</label>
+                                <select id="bed_3c" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="4 Terisi">4 Terisi</option>
+                                    <option value="3 Terisi, 1 Kosong">3 Terisi, 1 Kosong</option>
+                                    <option value="2 Terisi, 2 Kosong">2 Terisi, 2 Kosong</option>
+                                    <option value="1 Terisi, 3 Kosong">1 Terisi, 3 Kosong</option>
+                                    <option value="4 Kosong">4 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HCU INTERNA -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-black text-sm text-purple-900 uppercase tracking-wide">• HCU INTERNA (Total Kapasitas: 2 Bed)</h4>
+                            <span class="room-badge bg-purple-100 text-purple-800">HCU 1, HCU 2</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <!-- HCU 1 -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-purple-900">Kamar HCU 1 (1 Bed)</label>
+                                <select id="bed_hcu1" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="1 Terisi">1 Terisi</option>
+                                    <option value="1 Kosong">1 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                            <!-- HCU 2 -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-purple-900">Kamar HCU 2 (1 Bed)</label>
+                                <select id="bed_hcu2" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="1 Terisi">1 Terisi</option>
+                                    <option value="1 Kosong">1 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RUANG ISOLASI -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-black text-sm text-rose-900 uppercase tracking-wide">• RUANG ISOLASI (Total Kapasitas: 2 Bed)</h4>
+                            <span class="room-badge bg-rose-100 text-rose-800">1 Kamar (2 Bed)</span>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3">
+                            <!-- Isolasi -->
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="input-label text-rose-900">Kamar Isolasi (2 Bed)</label>
+                                <select id="bed_iso" class="input-ctrl text-xs" onchange="calculateBedStats()">
+                                    <option value="2 Terisi">2 Terisi</option>
+                                    <option value="1 Terisi, 1 Kosong">1 Terisi, 1 Kosong</option>
+                                    <option value="2 Kosong">2 Kosong</option>
+                                    <option value="Ruangan Belum Bisa Digunakan">Ruangan Belum Bisa Digunakan</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ringkasan Statistik Otomatis -->
+                <div class="mt-5 p-4 bg-slate-900 text-white rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4 shadow-md">
+                    <div class="text-center">
+                        <p class="text-[10px] font-extrabold uppercase text-slate-400">Total Bed Ruangan</p>
+                        <p class="text-2xl font-black text-white mt-1">32 Bed</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] font-extrabold uppercase text-slate-400">Bed Terisi (Terpakai)</p>
+                        <p id="disp_stat_terisi" class="text-2xl font-black text-amber-400 mt-1">0 Bed</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] font-extrabold uppercase text-slate-400">Bed Kosong</p>
+                        <p id="disp_stat_bor" class="text-2xl font-black text-teal-300 mt-1">0 Bed</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons Laporan Harian -->
+            <div class="flex gap-3">
+                <button onclick="previewLaporanHarianModal()" class="flex-1 bg-teal-800 hover:bg-teal-900 text-white font-extrabold py-3.5 rounded-xl uppercase text-xs tracking-wider shadow-md">Preview Laporan Harian</button>
+                <button onclick="copyLaporanHarianText()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 rounded-xl uppercase text-xs tracking-wider shadow-md">Salin Laporan WA</button>
+            </div>
+        </section>
+
+        <section id="sec-kalkulator" class="hidden space-y-6">
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight uppercase">KALKULATOR OBAT & MEDIS INTERNA</h2>
+                    <p class="text-xs text-slate-500 font-semibold">Alat Bantu Syringe Pump, Dextrose 40%, eGFR Ginjal, & Tetesan Infus</p>
+                </div>
+                <button onclick="switchNav('dashboard')" class="text-xs font-extrabold text-slate-500 hover:text-slate-800 bg-slate-200/70 px-3 py-1.5 rounded-lg">Kembali</button>
+            </div>
+
+            <div class="form-card border-t-4 border-t-teal-600">
+                <div class="section-header">
+                    <h3 class="section-title">1. Kalkulator Syringe Pump (cc/jam)</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="input-label">Pilih Jenis Obat</label>
+                        <select id="calc_sp_drug" class="input-ctrl" onchange="autoFillDrugSediaan()">
+                            <option value="Norepinephrine">Norepinephrine / Vascon (4 mg/4 mL)</option>
+                            <option value="Insulin">Insulin Regular / Actrapid (100 IU/mL)</option>
+                            <option value="Nicardipine">Nicardipine (10 mg/10 mL)</option>
+                            <option value="Dobutamine">Dobutamine (250 mg/5 mL)</option>
+                            <option value="Dopamine">Dopamine (200 mg/5 mL)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label">Dosis Order yang Diminta</label>
+                        <input type="number" step="any" id="calc_sp_dose" class="input-ctrl" placeholder="Misal: 0.05 atau 2">
+                    </div>
+                    <div>
+                        <label class="input-label">Satuan Dosis</label>
+                        <select id="calc_sp_unit" class="input-ctrl">
+                            <option value="mcg/kg/min">mcg / KgBB / menit</option>
+                            <option value="mcg/min">mcg / menit</option>
+                            <option value="mg/hr">mg / jam</option>
+                            <option value="IU/hr">IU / jam (Insulin)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label">Berat Badan Pasien (Kg)</label>
+                        <input type="number" id="calc_sp_bb" class="input-ctrl" placeholder="Misal: 60">
+                    </div>
+                    <div>
+                        <label class="input-label">Kandungan Obat (mg / IU)</label>
+                        <input type="number" id="calc_sp_mg" class="input-ctrl" placeholder="Misal: 4 mg Norepinephrine">
+                    </div>
+                    <div>
+                        <label class="input-label">Jumlah Pelarut (cc/mL)</label>
+                        <input type="number" id="calc_sp_vol" class="input-ctrl" value="50">
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 bg-teal-50 rounded-xl border border-teal-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-bold text-teal-800 uppercase">Kecepatan Syringe Pump:</p>
+                        <p id="calc_sp_result" class="text-2xl font-black text-teal-900 mt-0.5">0.00 cc/jam</p>
+                    </div>
+                    <button onclick="calculateSyringePump()" class="bg-teal-700 hover:bg-teal-800 text-white font-extrabold px-5 py-2.5 rounded-xl uppercase text-xs tracking-wider shadow">Hitung Laju</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-sisrute" class="hidden space-y-4">
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight uppercase">FORMAT SISRUTE RUJUKAN</h2>
+                    <p class="text-xs text-slate-500 font-semibold">RSUD Kol. Abundjani Bangko</p>
+                </div>
+                <button onclick="switchNav('dashboard')" class="text-xs font-extrabold text-slate-500 hover:text-slate-800 bg-slate-200/70 px-3 py-1.5 rounded-lg">Kembali</button>
+            </div>
+
+            <div class="form-card border-t-4 border-t-indigo-600">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="input-label">Nama Pasien</label>
+                        <input type="text" id="sis_nama" class="input-ctrl" placeholder="Nama Pasien">
+                    </div>
+                    <div>
+                        <label class="input-label">No. RM</label>
+                        <input type="text" id="sis_mr" class="input-ctrl" placeholder="00.00.00" oninput="this.value = autoFormatMR(this.value)" maxlength="8">
+                    </div>
+                    <div>
+                        <label class="input-label">Diagnosa Medis</label>
+                        <input type="text" id="sis_diagnosa" class="input-ctrl font-bold" placeholder="Diagnosa Utama">
+                    </div>
+                    <div>
+                        <label class="input-label">DPJP Merujuk</label>
+                        <select id="sis_dpjp" class="input-ctrl">
+                            <option value="dr. Sefnirita, Sp. PD, FINASIM">dr. Sefnirita, Sp. PD, FINASIM</option>
+                            <option value="dr. Pernanda Selpia, Sp. PD, FINASIM">dr. Pernanda Selpia, Sp. PD, FINASIM</option>
+                            <option value="dr. Nur Ekasari, Sp. PD., M.Kes., FINASIM">dr. Nur Ekasari, Sp. PD., M.Kes., FINASIM</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-pasienbaru" class="hidden space-y-4">
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight uppercase">Laporan Pasien Baru</h2>
+                    <p class="text-xs text-slate-500 font-semibold">Pengkajian Awal Pasien Ruang Interna</p>
+                </div>
+                <button onclick="switchNav('dashboard')" class="text-xs font-extrabold text-slate-500 hover:text-slate-800 bg-slate-200/70 px-3 py-1.5 rounded-lg">Kembali</button>
+            </div>
+
+            <div class="form-card border-t-4 border-t-emerald-600">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="input-label">Asal Ruangan</label>
+                        <select id="pb_asal" class="input-ctrl">
+                            <option value="IGD">IGD</option>
+                            <option value="Poliklinik Penyakit Dalam">Poliklinik Penyakit Dalam</option>
+                            <option value="VIP">VIP</option>
+                            <option value="BEDAH">BEDAH</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label">Nama Pasien</label>
+                        <input type="text" id="pb_nama" class="input-ctrl" placeholder="Nama Pasien">
+                    </div>
+                    <div>
+                        <label class="input-label">No. RM</label>
+                        <input type="text" id="pb_rm" class="input-ctrl" placeholder="00.00.00" oninput="this.value = autoFormatMR(this.value)" maxlength="8">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Copyright -->
+    <footer class="mt-auto py-6 text-center border-t border-slate-200 bg-white">
+        <p class="text-xs font-extrabold text-slate-700 uppercase tracking-widest">Laporan Harian Rawat Inap Ruangan Interna</p>
+        <p class="text-[11px] font-semibold text-slate-500 mt-1">RSUD Kol. Abundjani Bangko</p>
+        <p class="text-[10px] font-bold text-teal-700 mt-1">Developed for Eko Pastia Mukti, S. Kep., Ns.</p>
+    </footer>
+
+    <!-- Universal Preview Modal -->
+    <div id="previewModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="bg-teal-950 p-4 flex justify-between items-center text-white shrink-0">
+                <h3 id="modalTitle" class="font-black text-xs uppercase tracking-wider">Preview Text Laporan WA</h3>
+                <button onclick="closeModal()" class="text-teal-400 hover:text-white p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto bg-slate-50 grow">
+                <div id="modalOutput" class="whitespace-pre-wrap text-[13px] text-slate-800 font-mono leading-relaxed bg-white p-4 rounded-xl border border-slate-200 shadow-inner"></div>
+            </div>
+            <div class="p-4 bg-white border-t border-slate-200 shrink-0">
+                <button id="modalCopyBtn" onclick="" class="w-full bg-teal-700 hover:bg-teal-800 text-white font-extrabold py-3 rounded-xl uppercase tracking-wider text-xs shadow-md">Salin Teks Ke Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Component -->
+    <div id="toast" class="toast">BERHASIL DISALIN!</div>
+
+    <script>
+        window.onload = function() {
+            // Set Default Date Today
+            const today = new Date().toISOString().split('T')[0];
+            const tglEl = document.getElementById('lh_tanggal');
+            if (tglEl) tglEl.value = today;
+            
+            // Set default presets and initial bed stats
+            setPresetInternaDefault();
+        };
+
+        // --- Navigation Controller ---
+        function switchNav(targetId) {
+            const sections = ['dashboard', 'laporan_harian', 'kalkulator', 'sisrute', 'pasienbaru'];
+            sections.forEach(id => {
+                const el = document.getElementById('sec-' + id);
+                if (el) {
+                    if (id === targetId) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- Helper Formatting & Utilities ---
+        function autoFormatMR(val) {
+            const digits = val.replace(/\D/g, '');
+            if (digits.length === 6) {
+                return digits.replace(/(\d{2})(\d{2})(\d{2})/, "$1.$2.$3");
+            }
+            return val;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg || "BERHASIL DISALIN!";
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2200);
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast("BERHASIL DISALIN!");
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast("BERHASIL DISALIN!");
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        // --- Bed Preset Defaults ---
+        function setPresetInternaDefault() {
+            document.getElementById('bed_1a').value = "2 Terisi";
+            document.getElementById('bed_1b').value = "Ruangan Belum Bisa Digunakan";
+            document.getElementById('bed_1c').value = "1 Terisi, 1 Kosong";
+            document.getElementById('bed_1d').value = "1 Terisi";
+            document.getElementById('bed_1e').value = "1 Terisi, 1 Rusak";
+            document.getElementById('bed_1f').value = "1 Terisi";
+
+            document.getElementById('bed_2a').value = "3 Terisi";
+            document.getElementById('bed_2b').value = "3 Terisi";
+
+            document.getElementById('bed_3a').value = "4 Terisi";
+            document.getElementById('bed_3b').value = "Ruangan Belum Bisa Digunakan";
+            document.getElementById('bed_3c').value = "4 Terisi";
+
+            document.getElementById('bed_hcu1').value = "1 Terisi";
+            document.getElementById('bed_hcu2').value = "1 Terisi";
+
+            document.getElementById('bed_iso').value = "1 Terisi, 1 Kosong";
+
+            calculateBedStats();
+        }
+
+        function calculateBedStats() {
+            // Bed definitions with capacity
+            const rooms = [
+                { id: 'bed_1a', cap: 2 },
+                { id: 'bed_1b', cap: 2 },
+                { id: 'bed_1c', cap: 2 },
+                { id: 'bed_1d', cap: 1 },
+                { id: 'bed_1e', cap: 2 },
+                { id: 'bed_1f', cap: 1 },
+                { id: 'bed_2a', cap: 3 },
+                { id: 'bed_2b', cap: 3 },
+                { id: 'bed_3a', cap: 4 },
+                { id: 'bed_3b', cap: 4 },
+                { id: 'bed_3c', cap: 4 },
+                { id: 'bed_hcu1', cap: 1 },
+                { id: 'bed_hcu2', cap: 1 },
+                { id: 'bed_iso', cap: 2 }
+            ];
+
+            let totalBedReady = 0;
+            let totalTerisi = 0;
+
+            rooms.forEach(r => {
+                const el = document.getElementById(r.id);
+                if (!el) return;
+                const val = el.value;
+
+                if (val.includes("Belum Bisa Digunakan") || val === "2 Rusak") {
+                    // Room completely unavailable/non-ready
+                } else if (val === "1 Terisi, 1 Rusak" || val === "1 Kosong, 1 Rusak") {
+                    totalBedReady += 1;
+                    if (val.includes("1 Terisi")) totalTerisi += 1;
+                } else {
+                    totalBedReady += r.cap;
+                    const terisiMatch = val.match(/(\d+)\s+Terisi/i);
+                    if (terisiMatch) {
+                        totalTerisi += parseInt(terisiMatch[1]);
+                    }
+                }
+            });
+
+            const totalBedRuangan = 32;
+            const bedKosong = Math.max(0, totalBedRuangan - totalTerisi);
+
+            document.getElementById('disp_stat_terisi').innerText = `${totalTerisi} Bed`;
+            document.getElementById('disp_stat_bor').innerText = `${bedKosong} Bed`;
+
+            return { totalBedRuangan, totalTerisi, bedKosong };
+        }
+
+        // --- Formatter Nilai Status Bed untuk Laporan Teks ---
+        function formatBedValue(val) {
+            switch(val) {
+                case "2 Terisi": return "Terisi 2 Pasien (Penuh)";
+                case "1 Terisi, 1 Kosong": return "Terisi 1 Pasien (Kosong 1 Bed)";
+                case "2 Kosong": return "Kosong (2 Bed Kosong)";
+                case "Ruangan Belum Bisa Digunakan": return "Ruangan Belum Bisa Digunakan";
+                case "1 Terisi": return "Terisi 1 Pasien (Penuh)";
+                case "1 Kosong": return "Kosong (1 Bed Kosong)";
+                case "1 Terisi, 1 Rusak": return "Terisi 1 Pasien (1 Bed Rusak)";
+                case "1 Kosong, 1 Rusak": return "Kosong 1 Bed (1 Bed Rusak)";
+                case "2 Rusak": return "2 Bed Rusak (Non-Operasional)";
+                case "3 Terisi": return "Terisi 3 Pasien (Penuh)";
+                case "2 Terisi, 1 Kosong": return "Terisi 2 Pasien (Kosong 1 Bed)";
+                case "1 Terisi, 2 Kosong": return "Terisi 1 Pasien (Kosong 2 Bed)";
+                case "3 Kosong": return "Kosong (3 Bed Kosong)";
+                case "4 Terisi": return "Terisi 4 Pasien (Penuh)";
+                case "3 Terisi, 1 Kosong": return "Terisi 3 Pasien (Kosong 1 Bed)";
+                case "2 Terisi, 2 Kosong": return "Terisi 2 Pasien (Kosong 2 Bed)";
+                case "1 Terisi, 3 Kosong": return "Terisi 1 Pasien (Kosong 3 Bed)";
+                case "4 Kosong": return "Kosong (4 Bed Kosong)";
+                default: return val || "-";
+            }
+        }
+
+        // --- Generator Laporan Harian Text Rapi & Bagus ---
+        function generateLaporanHarianText() {
+            const tglVal = document.getElementById('lh_tanggal').value;
+            const tgl = tglVal ? new Date(tglVal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '-';
+            const shift = document.getElementById('lh_shift').value || 'Pagi';
+            const petugas = document.getElementById('lh_petugas').value.trim() || '-';
+
+            const val = (id) => {
+                const el = document.getElementById(id);
+                return el ? formatBedValue(el.value) : '-';
+            };
+
+            const stats = calculateBedStats();
+
+            return `🏥 *LAPORAN HARIAN RAWAT INAP RUANGAN INTERNA*
+*RSUD KOL. ABUNDJANI BANGKO*
+
+📅 *Hari / Tanggal:* ${tgl}
+⏰ *Shift Jaga:* ${shift}
+👤 *Petugas Pelapor:* ${petugas}
+
+====================================
+📊 *STATUS KAPASITAS BED & RUANGAN*
+====================================
+
+*Kelas 1:*
+• Kamar 1.A : ${val('bed_1a')}
+• Kamar 1.B : ${val('bed_1b')}
+• Kamar 1.C : ${val('bed_1c')}
+• Kamar 1.D : ${val('bed_1d')}
+• Kamar 1.E : ${val('bed_1e')}
+• Kamar 1.F : ${val('bed_1f')}
+
+*Kelas 2:*
+• Kamar 2.A : ${val('bed_2a')}
+• Kamar 2.B : ${val('bed_2b')}
+
+*Kelas 3:*
+• Kamar 3.A : ${val('bed_3a')}
+• Kamar 3.B : ${val('bed_3b')}
+• Kamar 3.C : ${val('bed_3c')}
+
+*HCU Interna:*
+• Kamar HCU 1 : ${val('bed_hcu1')}
+• Kamar HCU 2 : ${val('bed_hcu2')}
+
+*Ruang Isolasi:*
+• Kamar Isolasi : ${val('bed_iso')}
+
+====================================
+📈 *RINGKASAN STATISTIK RUANGAN*
+• Total Kapasitas : 32 Bed
+• Pasien Rawat (Terisi) : ${stats.totalTerisi} Bed
+• Bed Kosong : ${stats.bedKosong} Bed
+====================================
+
+Demikian laporan disampaikan. Terima kasih. 🙏`;
+        }
+
+        function previewLaporanHarianModal() {
+            const text = generateLaporanHarianText();
+            document.getElementById('modalTitle').innerText = "PREVIEW LAPORAN HARIAN RAWAT INAP INTERNA";
+            document.getElementById('modalOutput').innerText = text;
+            const btn = document.getElementById('modalCopyBtn');
+            btn.onclick = function() { copyToClipboard(text); closeModal(); };
+            document.getElementById('previewModal').classList.add('active');
+        }
+
+        function copyLaporanHarianText() {
+            const text = generateLaporanHarianText();
+            copyToClipboard(text);
+        }
+
+        // --- Syringe Pump Calculation ---
+        function calculateSyringePump() {
+            const dose = parseFloat(document.getElementById('calc_sp_dose').value) || 0;
+            const unit = document.getElementById('calc_sp_unit').value;
+            const bb = parseFloat(document.getElementById('calc_sp_bb').value) || 1;
+            const mg = parseFloat(document.getElementById('calc_sp_mg').value) || 1;
+            const vol = parseFloat(document.getElementById('calc_sp_vol').value) || 50;
+
+            let ccJam = 0;
+            if (unit === "mcg/kg/min") {
+                ccJam = (dose * bb * 60 * vol) / (mg * 1000);
+            } else if (unit === "mcg/min") {
+                ccJam = (dose * 60 * vol) / (mg * 1000);
+            } else if (unit === "mg/hr") {
+                ccJam = (dose * vol) / mg;
+            } else if (unit === "IU/hr") {
+                ccJam = (dose * vol) / mg;
+            }
+
+            document.getElementById('calc_sp_result').innerText = ccJam.toFixed(2) + " cc/jam";
+        }
+
+        function autoFillDrugSediaan() {
+            const drug = document.getElementById('calc_sp_drug').value;
+            if (drug === "Norepinephrine") {
+                document.getElementById('calc_sp_mg').value = 4;
+                document.getElementById('calc_sp_unit').value = "mcg/kg/min";
+            } else if (drug === "Insulin") {
+                document.getElementById('calc_sp_mg').value = 50;
+                document.getElementById('calc_sp_unit').value = "IU/hr";
+            } else if (drug === "Nicardipine") {
+                document.getElementById('calc_sp_mg').value = 10;
+                document.getElementById('calc_sp_unit').value = "mg/hr";
+            }
+        }
+    </script>
+</body>
+</html>
